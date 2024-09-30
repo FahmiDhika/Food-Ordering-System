@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import MenuRoute from './routers/menuRoute'
+import { PORT } from './global'
 
 const port: number = 4000
 const app = express()

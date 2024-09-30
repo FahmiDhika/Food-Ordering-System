@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid"
 import { request } from "http";
 import { date, number } from "joi";
 import { json } from "stream/consumers";
+import { BASE_URL } from "../global";
+import fs, { stat } from "fs";
 
 const prisma = new PrismaClient({errorFormat: "pretty"})
 
@@ -90,6 +92,50 @@ export const updateMenu = async (request: Request, response: Response) => {
     } 
 }
 
+export const changePicture = async (request: Request, response: Response) => {
+    try {
+        const { id } = request.params // mendapatkan id menu yang dikirimkan melalui parameter
+    
+        // id dicek apakah ada tau tidak
+        const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) }})
+        if (!findMenu) return response.status(200).json({
+            status: false,
+            message: `Menu tidak ditemukan`
+        })
+
+        // default value untuk filename
+        let filename = findMenu.picture
+
+        if (request.file) {
+            // update nama file dari foto yang di upload
+            filename = request.file.filename
+            
+            // cek foto yang lama di dalam folder
+            let path = `${BASE_URL}../public/menu_picture/${findMenu.picture}`
+            let exists = fs.existsSync(path)
+
+            // hapus foto yang lama jika di upload file baru
+            if (exists && findMenu.picture !== ``) fs.unlinkSync(path) // unlinksync untuk menghapus file tersebut
+        }
+
+        const updatePicture = await prisma.menu.update({
+            data: { picture: filename },
+            where: { id: Number(id) }
+        })
+
+        return response.json({
+            status: true,
+            data: updatePicture,
+            messgae: `Foto Telah Diubah`
+        }).status(200)
+    } catch (error) {
+        return response.json({
+            status: false,
+            message: `there is an error ${error}`
+        }).status(400)
+    }
+}
+
 export const deleteMenu = async (request: Request, response: Response) => {
     try {
         const { id } = request.params // mendapatkan id menu yang dikirimkan melalui parameter
@@ -100,6 +146,13 @@ export const deleteMenu = async (request: Request, response: Response) => {
             status: false,
             message: `Menu tidak ditemukan`
         })
+
+        // cek foto di dalam folder
+        let path = `${BASE_URL}../public/menu_picture/${findMenu.picture}`
+        let exists = fs.existsSync(path)
+
+        // hapus foto yang lama jika file baru di upload
+        if(exists && findMenu.picture !== ``) fs.unlinkSync(path)
 
         // proses untuk delete data
         const deleteMenu = await prisma.menu.delete({

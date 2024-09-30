@@ -41,7 +41,7 @@ model menu {
   name                String      @default("")
   price               Int         @default(0)
   category            category    @default(FOOD)
-  picture             String      @default("")
+  picture             String      @default("") @db.Text
   description         String      @default("") @db.Text
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt

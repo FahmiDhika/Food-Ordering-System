@@ -7,14 +7,13 @@ const storage = multer.diskStorage({
     destination: (request: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
         // deifinisikan lokasi dari foto yang diupload, pastikan sudah membuat folder "public" di root folder
         // lalu buat folder "menu-picture" di dalam "public" folder
-        cb(null, `${BASE_URL}/public/menu-picture/`)
-
-        filename: (request:Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-            // definisikan nama file yang diupload
-            cb(null, `${new Date().getTime().toString()}-${file.originalname}`)
-        }
-
-    } 
+        cb(null, `${BASE_URL}/public/menu_picture/`)
+    },
+    
+    filename: (request:Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
+        // definisikan nama file yang diupload
+        cb(null, `${new Date().getTime().toString()}-${file.originalname}`)
+    }
 })
 
 const uploadFile = multer({
