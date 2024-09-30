@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum role {
+  MANAGER
+  CASHIER
+}
+
+enum category {
+  FOOD
+  DRINK
+  SNACK
+}
+
+enum payment {
+  CASH
+  QRIS
+}
+
+enum status {
+  NEW
+  PAID
+  DONE
+}
+
+model menu {
+  id                  Int         @id @default(autoincrement())
+  uuid                 String      @unique @default("")
+  name                String      @default("")
+  price               Int         @default(0)
+  category            category    @default(FOOD)
+  picture             String      @default("")
+  description         String      @default("") @db.Text
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  orderList           order_list[]
+}
+
+model user {
+  idUser              Int         @id @default(autoincrement())
+  uuid                 String      @default("")
+  name                String      @default("")
+  email               String      @unique @default("")
+  password            String      @default("")
+  profile_picture     String      @default("")
+  role                role        @default(CASHIER)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  orderDetail         order[]
+}
+
+model order {
+  idOrder             Int         @id @default(autoincrement())
+  uuid                 String      @default("")
+  customer            String      @default("")
+  table_number        String      @default("")
+  total_price         Int         @default(0)
+  payment_met         payment     @default(CASH)
+  User                user?       @relation(fields: [userId], references: [idUser])
+  userId              Int?
+  status              status      @default(NEW)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  listDetail          order_list[]
+}
+
+model order_list {
+  idOrderList         Int         @id @default(autoincrement())
+  uuid                 String      @default("")
+  Order               order?      @relation(fields: [orderId], references: [idOrder])
+  orderId             Int?
+  Menu                menu?       @relation(fields: [menuId], references: [id])
+  menuId              Int?
+  quantity            Int         @default(0)
+  note                String      @default("") @db.Text
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+}
