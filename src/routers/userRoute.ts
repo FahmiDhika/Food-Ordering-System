@@ -9,7 +9,7 @@ app.use(express.json())
 app.get(`/`, getAllUser)
 app.post(`/`, [verifyAddUser], createUser)
 app.put(`/:id`, [verifyEditUser], updateUser)
-app.put(`/pic/:id`, [uploadFile.single("picture")], changeProfile)
+app.put(`/pic/:id`, [uploadFile.single("profile_picture")], changeProfile)
 app.delete(`/:id`, deleteUser)
 
 export default app
