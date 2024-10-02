@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { PrismaClient, status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid"
-import { request } from "http";
-import { BASE_URL } from "../global";
+import { BASE_URL, SECRET } from "../global";
 import fs, { stat } from "fs";
+import md5 from "md5" // autentikasi
+import { sign } from "jsonwebtoken"; // memberikan token untuk login
 
 const prisma = new PrismaClient({errorFormat: "pretty"})
 
@@ -37,7 +38,7 @@ export const createUser = async (request: Request, response: Response) => {
 
         // proses menyimpan user
         const newUser = await prisma.user.create({
-            data: { uuid, name, email, password, role }
+            data: { uuid, name, email, password: md5(password), role }
         })
 
         return response.json({
@@ -68,7 +69,7 @@ export const updateUser = async (request: Request, response: Response) => {
             data: {
                 name: name || findUser.name,
                 email: email || findUser.email,
-                password: password || findUser.password,
+                password: password ? md5(password) : findUser.password,
                 role: role || findUser.role
             },
             where: { idUser: Number(id)}
@@ -164,4 +165,47 @@ export const deleteUser = async (request: Request, response: Response) => {
             message: `Terjadi sebuah kesalahan ${error}`
         }).status(400)
     }
+}
+
+export const authentication = async (request: Request, response: Response) => {
+    try {
+        const { email, password } = request.body
+        
+        const findUser = await prisma.user.findFirst({
+            where: { email, password: md5(password) }
+        })
+
+        if (!findUser) return response.status(200).json({
+            status: false,
+            logged: false,
+            message: `Email atau Password invalid`
+        })
+
+        let data = {
+            id: findUser.idUser,
+            name: findUser.name,
+            email: findUser.email,
+            role: findUser.role
+        }
+
+        // menyiapkan data yang akan dijadikan token
+        let payload = JSON.stringify(data)
+
+        // sign untuk generate token
+        let token = sign(payload, SECRET || "token")
+
+        return response.status(200).json({
+            status: true,
+            logged: true,
+            message: `Login sukses`,
+            token
+        })
+
+    } catch(error) {
+        return response.json({
+            status: true,
+            message: `Terjadi sebuah kesalahan ${error}`
+        }).status(400)
+    }
+    
 }
