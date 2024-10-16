@@ -207,5 +207,4 @@ export const authentication = async (request: Request, response: Response) => {
             message: `Terjadi sebuah kesalahan ${error}`
         }).status(400)
     }
-    
 }
