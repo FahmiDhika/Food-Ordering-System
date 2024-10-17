@@ -13,78 +13,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum role {
-  MANAGER
-  CASHIER
-}
-
-enum category {
-  FOOD
-  DRINK
-  SNACK
-}
-
-enum payment {
+enum bayar {
   CASH
   QRIS
 }
 
-enum status {
-  NEW
-  PAID
-  DONE
+enum statusBayar {
+  BELUM
+  SELESAI
+  UTANG
 }
 
-model menu {
-  id                  Int         @id @default(autoincrement())
-  uuid                 String      @unique @default("")
-  name                String      @default("")
-  price               Int         @default(0)
-  category            category    @default(FOOD)
-  picture             String      @default("") @db.Text
-  description         String      @default("") @db.Text
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  orderList           order_list[]
+model produk {
+  id                        Int         @id @default(autoincrement())
+  uuid                      String      @unique @default("")
+  namaProduk                String      @default("")
+  harga                     Int         @default(0)
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
+  transaksiList             transaksi_list[]
 }
 
-model user {
-  idUser              Int         @id @default(autoincrement())
-  uuid                 String      @default("")
-  name                String      @default("")
-  email               String      @unique @default("")
-  password            String      @default("")
-  profile_picture     String      @default("")
-  role                role        @default(CASHIER)
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  orderDetail         order[]
+model admin {
+  id                        Int         @id @default(autoincrement())
+  uuid                      String      @default("")
+  nama                      String      @unique @default("")
+  password                  String      @default("")
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
+  transaksi                 transaksi[]
 }
 
-model order {
-  idOrder             Int         @id @default(autoincrement())
-  uuid                 String      @default("")
-  customer            String      @default("")
-  table_number        String      @default("")
-  total_price         Int         @default(0)
-  payment_met         payment     @default(CASH)
-  User                user?       @relation(fields: [userId], references: [idUser])
-  userId              Int?
-  status              status      @default(NEW)
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  listDetail          order_list[]
+model transaksi {
+  idTransaksi               Int         @id @default(autoincrement())
+  uuid                      String      @default("")
+  pembeli                   String      @default("")
+  metodeBayar               bayar       @default(CASH)
+  admin                     admin?      @relation(fields: [adminId], references: [id])
+  adminId                   Int?
+  status                    statusBayar @default(BELUM)
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
+  transaksiList             transaksi_list[]
 }
 
-model order_list {
-  idOrderList         Int         @id @default(autoincrement())
-  uuid                 String      @default("")
-  Order               order?      @relation(fields: [orderId], references: [idOrder])
-  orderId             Int?
-  Menu                menu?       @relation(fields: [menuId], references: [id])
-  menuId              Int?
-  quantity            Int         @default(0)
-  note                String      @default("") @db.Text
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+model transaksi_list {
+  idTransaksiList           Int         @id @default(autoincrement())
+  uuid                      String      @default("")
+  transaksi                 transaksi?  @relation(fields: [idTransaksi], references: [idTransaksi])
+  idTransaksi               Int?
+  produk                    produk?     @relation(fields: [idProduk], references: [id])
+  idProduk                  Int?
+  jumlah                    Int         @default(0)
+  catatan                   String      @default("") @db.Text
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
 }
