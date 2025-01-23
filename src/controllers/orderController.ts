@@ -8,7 +8,7 @@ export const getAllOrders = async (request: Request, response: Response) => {
   try {
     const { search, status, start_date, end_date } = request.query;
 
-        const filterConditions: any = {
+        const filterConditions: any = { 
             OR: [
                 { customer: { contains: search?.toString() || "" } },
                 { table_number: { contains: search?.toString() || "" } }

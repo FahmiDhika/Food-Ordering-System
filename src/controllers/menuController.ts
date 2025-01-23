@@ -37,9 +37,13 @@ export const createMenu = async (request: Request, response: Response) => {
         const { name, price, category, description } = request.body
         const uuid = uuidv4()
 
+        // menambahkan foto untuk menu
+        let filename = ""
+        if (request.file) filename = request.file.filename // untuk mendapatkan nama file yang dikirim
+
         // proses untuk menyimpan menu
         const newMenu = await prisma.menu.create({
-            data: { uuid, name, price: Number(price), category, description }
+            data: { uuid, name, price: Number(price), category, description, picture: filename }
         })
         // harga dan stok telah diubah menjadi INTEGER, default nya STRING
 
@@ -68,13 +72,29 @@ export const updateMenu = async (request: Request, response: Response) => {
             message: `Menu tidak ditemukan`
         })
 
+        // default value untuk filename
+        let filename = findMenu.picture
+
+        if (request.file) {
+            // update nama file dari foto yang di upload
+            filename = request.file.filename
+            
+            // cek foto yang lama di dalam folder
+            let path = `${BASE_URL}../public/profile_picture/${findMenu.picture}`
+            let exists = fs.existsSync(path)
+
+            // hapus foto yang lama jika di upload file baru
+            if (exists && findMenu.picture !== ``) fs.unlinkSync(path) // unlinksync untuk menghapus file tersebut
+        }
+
         // proses untuk mengupdate data dari menu
         const updateMenu = await prisma.menu.update({
             data: {
                 name: name || findMenu.name,
                 price: price ? Number(price) : findMenu.price, //ini merupakan operasi ternary, `kondisi ? true : false`
                 category: category || findMenu.category,
-                description: description || findMenu.description
+                description: description || findMenu.description,
+                picture: filename
             },
             where: { id: Number(id) }
         })
@@ -92,49 +112,49 @@ export const updateMenu = async (request: Request, response: Response) => {
     } 
 }
 
-export const changePicture = async (request: Request, response: Response) => {
-    try {
-        const { id } = request.params // mendapatkan id menu yang dikirimkan melalui parameter
+// export const changePicture = async (request: Request, response: Response) => {
+//     try {
+//         const { id } = request.params // mendapatkan id menu yang dikirimkan melalui parameter
     
-        // id dicek apakah ada tau tidak
-        const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) }})
-        if (!findMenu) return response.status(200).json({
-            status: false,
-            message: `Menu tidak ditemukan`
-        })
+//         // id dicek apakah ada tau tidak
+//         const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) }})
+//         if (!findMenu) return response.status(200).json({
+//             status: false,
+//             message: `Menu tidak ditemukan`
+//         })
 
-        // default value untuk filename
-        let filename = findMenu.picture
+//         // default value untuk filename
+//         let filename = findMenu.picture
 
-        if (request.file) {
-            // update nama file dari foto yang di upload
-            filename = request.file.filename
+//         if (request.file) {
+//             // update nama file dari foto yang di upload
+//             filename = request.file.filename
             
-            // cek foto yang lama di dalam folder
-            let path = `${BASE_URL}../public/menu_picture/${findMenu.picture}`
-            let exists = fs.existsSync(path)
+//             // cek foto yang lama di dalam folder
+//             let path = `${BASE_URL}../public/menu_picture/${findMenu.picture}`
+//             let exists = fs.existsSync(path)
 
-            // hapus foto yang lama jika di upload file baru
-            if (exists && findMenu.picture !== ``) fs.unlinkSync(path) // unlinksync untuk menghapus file tersebut
-        }
+//             // hapus foto yang lama jika di upload file baru
+//             if (exists && findMenu.picture !== ``) fs.unlinkSync(path) // unlinksync untuk menghapus file tersebut
+//         }
 
-        const updatePicture = await prisma.menu.update({
-            data: { picture: filename },
-            where: { id: Number(id) }
-        })
+//         const updatePicture = await prisma.menu.update({
+//             data: { picture: filename },
+//             where: { id: Number(id) }
+//         })
 
-        return response.json({
-            status: true,
-            data: updatePicture,
-            messgae: `Foto Telah Diubah`
-        }).status(200)
-    } catch (error) {
-        return response.json({
-            status: false,
-            message: `there is an error ${error}`
-        }).status(400)
-    }
-}
+//         return response.json({
+//             status: true,
+//             data: updatePicture,
+//             messgae: `Foto Telah Diubah`
+//         }).status(200)
+//     } catch (error) {
+//         return response.json({
+//             status: false,
+//             message: `there is an error ${error}`
+//         }).status(400)
+//     }
+// }
 
 export const deleteMenu = async (request: Request, response: Response) => {
     try {

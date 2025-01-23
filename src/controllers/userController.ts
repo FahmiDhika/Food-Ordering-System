@@ -198,7 +198,8 @@ export const authentication = async (request: Request, response: Response) => {
             status: true,
             logged: true,
             message: `Login sukses`,
-            token
+            token,
+            data: data
         })
 
     } catch(error) {
