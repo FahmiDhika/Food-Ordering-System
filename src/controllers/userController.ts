@@ -36,9 +36,16 @@ export const createUser = async (request: Request, response: Response) => {
         const { name, email, password, role } = request.body
         const uuid = uuidv4()
 
+        let filename = ""
+
+        if (request.file) {
+            // update nama file dari foto yang di upload
+            filename = request.file.filename
+        }
+
         // proses menyimpan user
         const newUser = await prisma.user.create({
-            data: { uuid, name, email, password: md5(password), role }
+            data: { uuid, name, email, password: md5(password), role, profile_picture: filename }
         })
 
         return response.json({
@@ -65,12 +72,20 @@ export const updateUser = async (request: Request, response: Response) => {
             message: `User tidak ditemukan`
         })
 
+        let filename = ""
+
+        if (request.file) {
+            // update nama file dari foto yang di upload
+            filename = request.file.filename
+        }
+
         const updateUser = await prisma.user.update({
             data: {
                 name: name || findUser.name,
                 email: email || findUser.email,
                 password: password ? md5(password) : findUser.password,
-                role: role || findUser.role
+                role: role || findUser.role,
+                profile_picture: filename
             },
             where: { idUser: Number(id)}
         })

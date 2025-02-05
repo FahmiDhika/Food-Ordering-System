@@ -20,13 +20,13 @@ export const getAllMenus = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: allMenus,
-            massage: `Menu berhasil ditampilkan`
+            message: `Menu berhasil ditampilkan`
         }).status(200)
     } catch (error) {
         return response
         .json({
             status: false,
-            massage: `Terjadi sebuah kesalahan. ${error}`
+            message: `Terjadi sebuah kesalahan. ${error}`
         }).status(400)
     }
 }
@@ -50,12 +50,12 @@ export const createMenu = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: newMenu,
-            massage: `Menu Telah Berhasil Ditambahkan`
+            message: `Menu Telah Berhasil Ditambahkan`
         }).status(200)
     } catch (error) {
         return response.json({
             status: false,
-            massage: `Terjadi sebuah kesalahan ${error}`
+            message: `Terjadi sebuah kesalahan ${error}`
         }).status(400)
     }
 }
@@ -107,7 +107,7 @@ export const updateMenu = async (request: Request, response: Response) => {
     } catch (error) {
         return response.json({
             status: false,
-            massage: `Terjadi sebuah kesalahan ${error}`
+            message: `Terjadi sebuah kesalahan ${error}`
         }).status(400)
     } 
 }
