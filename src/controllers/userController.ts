@@ -72,7 +72,7 @@ export const updateUser = async (request: Request, response: Response) => {
             message: `User tidak ditemukan`
         })
 
-        let filename = ""
+        let filename = findUser.profile_picture
 
         if (request.file) {
             // update nama file dari foto yang di upload
