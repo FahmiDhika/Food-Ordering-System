@@ -8,6 +8,29 @@ import { sign } from "jsonwebtoken"; // memberikan token untuk login
 
 const prisma = new PrismaClient({errorFormat: "pretty"})
 
+export const getProfile = async (request: Request, response: Response) => {
+    try {
+        const user = request.body.user
+        const getProfile = await prisma.user.findFirst({
+            where: {
+                idUser: user.id
+            }
+        })
+
+        return response.json({
+            status: true,
+            data: getProfile,
+            message: `User berhasil ditampilkan`
+        })
+
+    } catch (error) {
+        return response.json({
+            status: true,
+            message: `Terjadi sebuah kesalahan ${error}`
+        }).status(400)
+    }
+}
+
 export const getAllUser = async (request: Request, response: Response) => {
     try {
         const { search } = request.query
