@@ -4,6 +4,7 @@ import {
   updateMenu,
   createMenu,
   deleteMenu,
+  filterMenu,
   //   changePicture
 } from "../controllers/menuController";
 import { verifyAddMenu, verifyEditMenu } from "../middlewares/verifyMenu";
@@ -14,6 +15,7 @@ const app = express();
 app.use(express.json());
 
 app.get(`/get`, [verifyToken, verifyRole(["CASHIER", "MANAGER"])], getAllMenus);
+app.get(`/filter`, [verifyToken, verifyRole(["CASHIER", "MANAGER"])], filterMenu);
 app.post(
   `/add`,
   [

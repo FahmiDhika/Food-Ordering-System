@@ -21,7 +21,7 @@ export const getProfile = async (request: Request, response: Response) => {
             status: true,
             data: getProfile,
             message: `User berhasil ditampilkan`
-        })
+        }).status(200)
 
     } catch (error) {
         return response.json({

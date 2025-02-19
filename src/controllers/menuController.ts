@@ -31,6 +31,26 @@ export const getAllMenus = async (request: Request, response: Response) => {
     }
 }
 
+export const filterMenu = async (request: Request, response: Response) => {
+    try {
+        const { category } = request.query
+        const filterMenu = await prisma.menu.findMany({
+            where: { category: category as any}
+        })
+
+        return response.json({
+            status: true,
+            data: filterMenu,
+            message: `Menu berhasil ditampilkan`
+        }).status(200)
+    } catch (error) {
+        return response.json({
+            status: false,
+            message: `Terjadi sebuah kesalahan ${error}`
+        }).status(400)
+    }
+}
+
 export const createMenu = async (request: Request, response: Response) => {
     try {
         // mendapatkan request data (data dikirim dari request body)
